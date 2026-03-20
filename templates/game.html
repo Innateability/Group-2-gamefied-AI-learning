@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Placement Test</title>
+<style>
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#1e3a8a,#0f172a);color:white;margin:0;padding:0;display:flex;flex-direction:column;align-items:center;}
+.container{max-width:700px;margin-top:30px;width:90%;}
+.card{background:rgba(255,255,255,0.08);padding:25px;border-radius:25px;margin-bottom:20px;box-shadow:0 8px 30px rgba(0,0,0,0.5);transition:transform 0.2s;}
+.card:hover{transform:translateY(-5px);}
+button{margin:10px 0;padding:12px 20px;border:none;border-radius:15px;background:#3b82f6;cursor:pointer;transition:0.3s;display:block;width:100%;font-weight:bold;}
+button:hover{background:#2563eb;transform:scale(1.05);}
+h2,h3,p{margin:5px 0;}
+.feedback{margin-top:10px;font-size:16px;font-weight:bold;}
+.progress{margin-bottom:10px;font-size:14px;}
+</style>
+</head>
+<body>
+<div class="container">
+<div id="question_card" class="card">
+    <div class="progress" id="progress"></div>
+    <h2 id="topic"></h2>
+    <h3 id="subtopic"></h3>
+    <p id="question"></p>
+    <div id="options"></div>
+    <p id="feedback" class="feedback"></p>
+</div>
+<div id="study_plan_card" class="card" style="display:none;">
+    <h2>📚 Personalized 2-Month Study Plan</h2>
+    <div id="plan"></div>
+</div>
+</div>
+
+<script>
+const user = localStorage.getItem("user");
+let currentQuestion=null;
+let totalQuestions=0;
+async function loadQuestion(){
+    const res = await fetch("/next_question?user_id="+user);
+    const data = await res.json();
+    if(data.done){
+        document.getElementById("question_card").style.display="none";
+        document.getElementById("study_plan_card").style.display="block";
+        const planDiv = document.getElementById("plan");
+        planDiv.innerHTML="";
+        for(let week in data.study_plan){
+            const wDiv = document.createElement("div");
+            wDiv.innerHTML=`<h3>${week}</h3>`;
+            data.study_plan[week].forEach(sub=>{
+                const btn=document.createElement("button");
+                btn.innerText=`Start Lesson: ${sub.topic} - ${sub.subtopic}`;
+                btn.onclick=()=>alert(`Starting lesson on ${sub.topic} - ${sub.subtopic}`);
+                wDiv.appendChild(btn);
+            });
+            planDiv.appendChild(wDiv);
+        }
+        return;
+    }
+    currentQuestion=data;
+    document.getElementById("topic").innerText=data.topic;
+    document.getElementById("subtopic").innerText=data.subtopic;
+    document.getElementById("question").innerText=data.question;
+    const optionsDiv=document.getElementById("options");
+    optionsDiv.innerHTML="";
+    data.options.forEach(opt=>{
+        const btn=document.createElement("button");
+        btn.innerText=opt;
+        btn.onclick=()=>submitAnswer(opt);
+        optionsDiv.appendChild(btn);
+    });
+    document.getElementById("feedback").innerText="";
+    totalQuestions++;
+    document.getElementById("progress").innerText=`Question ${totalQuestions}`;
+}
+
+async function submitAnswer(ans){
+    const res = await fetch("/submit_answer",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({user_id:user,answer:ans})});
+    const data=await res.json();
+    document.getElementById("feedback").innerText=data.correct?"✅ Correct":"❌ Wrong, Answer: "+data.answer;
+    setTimeout(loadQuestion,800);
+}
+
+loadQuestion();
+</script>
+</body>
+</html>

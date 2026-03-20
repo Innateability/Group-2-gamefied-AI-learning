@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { font-family: Arial; text-align:center; }
+    .card {
+      background:#eee;
+      padding:20px;
+      margin:10px;
+      border-radius:10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>📊 Dashboard</h1>
+
+<div class="card">
+  <h3>Accuracy</h3>
+  <p id="accuracy"></p>
+</div>
+
+<div class="card">
+  <h3>Weak Topics</h3>
+  <p id="weak"></p>
+</div>
+
+<a href="/game">Back to Game</a>
+
+<script>
+async function loadDashboard() {
+  const user = localStorage.getItem("user");
+
+  const res = await fetch("/dashboard_data?user_id=" + user);
+  const data = await res.json();
+
+  document.getElementById("accuracy").innerText = data.accuracy + "%";
+  document.getElementById("weak").innerText = data.weak_topics.join(", ");
+}
+
+loadDashboard();
+</script>
+
+</body>
+</html>

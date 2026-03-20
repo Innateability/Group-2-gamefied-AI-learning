@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Learning</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body style="text-align:center; margin-top:100px; font-family:Arial;">
+  <h1>AI Gamified Learning</h1>
+  <input id="name" placeholder="Enter your name" />
+  <br><br><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Gamified Learning</title>
+<style>
+body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#06b6d4,#0f172a);color:white;margin:0;display:flex;justify-content:center;align-items:center;height:100vh;}
+.card{background:rgba(255,255,255,0.08);padding:25px;border-radius:25px;box-shadow:0 8px 30px rgba(0,0,0,0.5);}
+input,button{width:100%;padding:12px;margin-top:10px;border-radius:15px;border:none;}
+input{background:#334155;color:white;}
+button{background:#3b82f6;color:white;cursor:pointer;font-weight:bold;}
+button:hover{background:#2563eb;transform:scale(1.05);}
+</style>
+</head>
+<body>
+<div class="card">
+<h2>Welcome to AI Math Learning Bot</h2>
+<input id="name" placeholder="Enter your name" />
+<button onclick="start()">Start Test</button>
+</div>
+<script>
+async function start(){
+    const userId = document.getElementById("name").value;
+    localStorage.setItem("user",userId);
+    const res = await fetch("/start",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({user_id:userId})});
+    window.location.href="/game";
+}
+</script>
+</body>
+</html>
+  <button onclick="start()">Start Learning</button>
+
+<script>
+async function start() {
+  const name = document.getElementById("name").value;
+
+  const res = await fetch("/start", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ user_id: name })
+  });
+
+  const data = await res.json();
+
+  // Save user locally
+  localStorage.setItem("user", name);
+
+  // Go to game page
+  window.location.href = "/game";
+}
+</script>
+
+</body>
+</html>

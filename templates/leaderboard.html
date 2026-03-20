@@ -1,0 +1,15 @@
+<h1>🏆 Leaderboard</h1>
+<ul id="board"></ul>
+
+<script>
+fetch("/leaderboard")
+.then(res => res.json())
+.then(data => {
+  const list = document.getElementById("board");
+  data.forEach(user => {
+    const li = document.createElement("li");
+    li.innerText = user[0] + " - " + user[1] + " XP";
+    list.appendChild(li);
+  });
+});
+</script>
