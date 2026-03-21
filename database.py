@@ -16,22 +16,7 @@ def create_tables():
         weak_topic TEXT
     )
     """)
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS performance (
-                user_id TEXT,
-                topic TEXT,
-                correct INTEGER
-                )
-                """)
-    cur.execute("""
-                CREATE TABLE IF NOT EXISTS leaderboard (
-                user_id TEXT,
-                xp INTEGER
-                )
-                """)
 
     conn.commit()
     conn.close()
-
-
 

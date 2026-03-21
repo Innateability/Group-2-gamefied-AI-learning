@@ -19,22 +19,29 @@ async function getQuestion() {
   document.getElementById("feedback").innerText = "";
 }
 
-async function submitAnswer() {
-  const answer = document.getElementById("answer").value;
+let score = 0;
+let total = 10;
 
-  const res = await fetch("/answer", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ user_id: userId, answer })
-  });
+document.getElementById("total").innerText = total;
 
-  const data = await res.json();
+async function submitAnswer(ans){
+    const res = await fetch("/submit_answer", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({user_id:user, answer:ans})
+    });
 
-  document.getElementById("feedback").innerText = data.message;
-  document.getElementById("answer").value = "";
+    const data = await res.json();
 
-  updateStats(data.user);
-  getQuestion();
+    if(data.correct){
+        score++;
+        document.getElementById("score").innerText = score;
+    }
+
+    document.getElementById("feedback").innerText =
+        data.correct ? "✅ Correct" : "❌ Wrong: " + data.answer;
+
+    setTimeout(loadQuestion, 800);
 }
 
 function updateStats(user) {

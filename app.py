@@ -1,250 +1,189 @@
 from flask import Flask, request, jsonify, render_template
 import random
+from database import create_tables
 
 app = Flask(__name__)
+create_tables()
 
 # -----------------------
-# Question Bank (10 topics × 4 subtopics each, MCQs)
+# QUESTION BANK (USE YOUR FULL ONE HERE)
 # -----------------------
-question_bank = {
-    "Algebra": {
-        "Equations": [
-            ("Solve x + 3 = 7", "4", ["2","4","5","3"]),
-            ("Solve 2x = 10", "5", ["5","2","10","6"])
-        ],
-        "Inequalities": [
-            ("Solve x - 5 > 2", "8", ["6","7","8","9"]),
-            ("Solve 2x + 1 < 7", "3", ["2","3","4","5"])
-        ],
-        "Polynomials": [
-            ("Simplify x^2 + 2x + x^2", "2x^2+2x", ["x^2+2x","2x^2+2x","x^2+2x^2","2x^2+x"])
-        ],
-        "Factoring": [
-            ("Factor x^2+5x+6", "(x+2)(x+3)", ["(x+2)(x+3)","(x+1)(x+6)","(x+3)(x+3)","(x+2)(x+2)"])
-        ]
-    },
-    "Geometry": {
-        "Angles": [
-            ("Sum of angles in a triangle?", "180", ["90","180","360","270"])
-        ],
-        "Triangles": [
-            ("Right triangle sides 3,4,?", "5", ["5","6","7","4"])
-        ],
-        "Circles": [
-            ("Radius 5, area?", "78.5", ["25","50","78.5","100"])
-        ],
-        "Area": [
-            ("Area rectangle 4x5", "20", ["9","20","10","15"])
-        ]
-    },
-    "Arithmetic": {
-        "Addition": [
-            ("5 + 7 = ?", "12", ["10","12","11","13"])
-        ],
-        "Subtraction": [
-            ("10 - 3 = ?", "7", ["7","6","8","5"])
-        ],
-        "Multiplication": [
-            ("4 × 6 = ?", "24", ["24","20","26","28"])
-        ],
-        "Division": [
-            ("12 ÷ 3 = ?", "4", ["3","4","5","6"])
-        ]
-    },
-    "Number Theory": {
-        "Prime Numbers": [
-            ("Next prime after 7?", "11", ["9","10","11","13"])
-        ],
-        "Factors": [
-            ("Factors of 12?", "1,2,3,4,6,12", ["1,2,3,4,6,12","2,3,6,12","1,2,4,8","1,3,6,12"])
-        ],
-        "Multiples": [
-            ("Multiples of 3 under 10?", "3,6,9", ["3,6,9","3,6,9,12","6,9,12","3,6"])
-        ],
-        "GCD": [
-            ("GCD of 8 and 12?", "4", ["2","4","6","8"])
-        ]
-    },
-    "Fractions": {
-        "Simplifying": [
-            ("Simplify 8/12", "2/3", ["2/3","3/4","4/6","1/2"])
-        ],
-        "Addition": [
-            ("1/2 + 1/3", "5/6", ["2/5","5/6","3/5","1/3"])
-        ],
-        "Subtraction": [
-            ("3/4 - 1/2", "1/4", ["1/4","1/2","2/4","1/3"])
-        ],
-        "Multiplication": [
-            ("2/3 × 3/4", "1/2", ["1/2","2/3","3/4","1/3"])
-        ]
-    },
-    "Decimals": {
-        "Addition": [
-            ("0.5 + 0.75", "1.25", ["1.25","1.15","1.35","1.05"])
-        ],
-        "Subtraction": [
-            ("1.2 - 0.7", "0.5", ["0.6","0.5","0.7","0.4"])
-        ],
-        "Multiplication": [
-            ("0.4 × 0.5", "0.2", ["0.2","0.3","0.4","0.1"])
-        ],
-        "Division": [
-            ("0.6 ÷ 0.2", "3", ["2","3","4","5"])
-        ]
-    },
-    "Percentages": {
-        "Basics": [
-            ("What is 50% of 200?", "100", ["100","50","150","200"])
-        ],
-        "Increase": [
-            ("Increase 80 by 25%", "100", ["100","95","105","110"])
-        ],
-        "Decrease": [
-            ("Decrease 90 by 20%", "72", ["72","70","74","75"])
-        ],
-        "Word Problems": [
-            ("10 is what % of 50?", "20", ["10","20","25","50"])
-        ]
-    },
-    "Ratios & Proportions": {
-        "Simplifying Ratios": [
-            ("Simplify 4:8", "1:2", ["1:2","2:4","2:1","4:8"])
-        ],
-        "Equivalent Ratios": [
-            ("2:3 = ? : 9", "6:9", ["6:9","3:9","4:9","5:9"])
-        ],
-        "Proportions": [
-            ("If 2/3 = x/9, x = ?", "6", ["6","3","9","12"])
-        ],
-        "Word Problems": [
-            ("A:B = 2:3, B=15, A=?", "10", ["10","12","15","20"])
-        ]
-    },
-    "Algebra 2": {
-        "Linear Equations": [
-            ("Solve 3x + 4 = 10", "2", ["1","2","3","4"])
-        ],
-        "Quadratic Equations": [
-            ("Solve x^2 - 5x + 6 = 0", "2", ["1","2","3","4"])
-        ],
-        "Functions": [
-            ("f(x) = 2x, f(3)?", "6", ["5","6","7","8"])
-        ],
-        "Graphing": [
-            ("Slope of line through (0,0) & (2,4)?", "2", ["1","2","4","0.5"])
-        ]
-    }
-}
+from content import question_bank
 
-# -----------------------
-# Sessions
-# -----------------------
 sessions = {}
 
 # -----------------------
-# Helpers
+# SELECT 1 QUESTION PER TOPIC
 # -----------------------
-
 def select_placement_questions():
-    placement_questions = []
+    selected = []
+
     for topic, subtopics in question_bank.items():
-        for subtopic, questions in subtopics.items():
-            q, ans, options = random.choice(questions)
-            random.shuffle(options)
-            placement_questions.append({
-                "topic": topic,
-                "subtopic": subtopic,
-                "question": q,
-                "answer": ans,
-                "options": options
-            })
-    return placement_questions
+        subtopic = random.choice(list(subtopics.keys()))
+        q, ans, options = random.choice(subtopics[subtopic])
+
+        random.shuffle(options)
+
+        selected.append({
+            "topic": topic,
+            "subtopic": subtopic,
+            "question": q,
+            "answer": ans,
+            "options": options
+        })
+
+    return selected
+
+# -----------------------
+# STUDY PLAN
+# -----------------------
+# def generate_study_plan(weak):
+#     plan = {f"Week {i}": [] for i in range(1, 9)}
+
+#     week = 1
+#     for topic in weak:
+#         for sub in weak[topic]:
+#             plan[f"Week {week}"].append(f"{topic} - {sub}")
+#             week = week + 1 if week < 8 else 1
+
+#     return plan
+
+import random
 
 def generate_study_plan(weak_subtopics):
+    """
+    Generate a 2-month (10-lesson) personalized plan:
+    - Split weak topics into part 1 & part 2
+    - Fill remaining lessons with default topics
+    - Shuffle the order while keeping sequential numbering
+    """
+
+    # Step 1: Flatten weak topics into part 1 & part 2
+    weak_lessons = []
+    for topic, subs in weak_subtopics.items():
+        for sub in subs:
+            weak_lessons.append(f"{topic} - {sub} (Part 1)")
+            weak_lessons.append(f"{topic} - {sub} (Part 2)")
+
+    # Step 2: Define default lessons similar to normal topics
+    default_lessons = [
+        "AI Basics - Components",
+        "AI Basics - Introduction",
+        "Agents - Agent Structure",
+        "Agents - Agent Concepts",
+        "Search - Search Techniques",
+        "Search - Search Basics",
+        "Problem Solving - Concepts",
+        "Expert Systems - Components",
+        "Expert Systems - Basics",
+        "Ethics - Issues"
+    ]
+
+    # Step 3: Fill remaining lessons to reach 10
+    total_lessons = 10
+    lessons_needed = total_lessons - len(weak_lessons)
+    if lessons_needed > 0:
+        weak_lessons.extend(random.sample(default_lessons, lessons_needed))
+
+    # Step 4: Shuffle lessons randomly but maintain sequential order
+    random.shuffle(weak_lessons)
+
+    # Step 5: Arrange into 8 weeks (or 10 lessons sequentially)
     plan = {}
-    weeks = 8
-    for i in range(1, weeks+1):
-        plan[f"Week {i}"] = []
-    week_counter = 1
-    for topic, subtopics in weak_subtopics.items():
-        for subtopic in subtopics:
-            plan[f"Week {week_counter}"].append({"topic": topic, "subtopic": subtopic})
-            week_counter = (week_counter % weeks) + 1
+    week = 1
+    for idx, lesson in enumerate(weak_lessons):
+        week_name = f"Week {week}"
+        if week_name not in plan:
+            plan[week_name] = []
+        plan[week_name].append(lesson)
+        week = week + 1 if week < 8 else 1
+
     return plan
 
 # -----------------------
-# Routes
+# ROUTES
 # -----------------------
-
 @app.route("/")
 def home():
     return render_template("index.html")
 
 @app.route("/game")
-def game_page():
+def game():
     return render_template("game.html")
 
 @app.route("/start", methods=["POST"])
 def start():
     user_id = request.json["user_id"]
-    placement_questions = select_placement_questions()
+
     sessions[user_id] = {
-        "questions": placement_questions,
-        "current_index": 0,
-        "weak_subtopics": {},
-        "history": []
+        "questions": select_placement_questions(),
+        "index": 0,
+        "score": 0,
+        "weak": {}
     }
-    return jsonify({"message":"Placement test started","total":len(placement_questions)})
 
-@app.route("/next_question")
-def next_question():
+    return jsonify({"total": len(sessions[user_id]["questions"])})
+
+@app.route("/next")
+def next_q():
     user_id = request.args.get("user_id")
-    session = sessions.get(user_id)
-    if not session:
-        return jsonify({"error":"Session not found"}), 404
+    session = sessions[user_id]
 
-    if session["current_index"] >= len(session["questions"]):
-        study_plan = generate_study_plan(session["weak_subtopics"])
-        return jsonify({"done": True, "study_plan": study_plan})
+    if session["index"] >= len(session["questions"]):
+        return jsonify({
+            "done": True,
+            "score": session["score"],
+            "plan": generate_study_plan(session["weak"])
+        })
 
-    qdata = session["questions"][session["current_index"]]
+    q = session["questions"][session["index"]]
+
     return jsonify({
         "done": False,
-        "question": qdata["question"],
-        "topic": qdata["topic"],
-        "subtopic": qdata["subtopic"],
-        "options": qdata["options"]
+        "topic": q["topic"],
+        "subtopic": q["subtopic"],
+        "question": q["question"],
+        "options": q["options"]
     })
 
-@app.route("/submit_answer", methods=["POST"])
-def submit_answer():
+@app.route("/answer", methods=["POST"])
+def answer():
     data = request.json
     user_id = data["user_id"]
-    user_answer = data["answer"]
+    ans = data["answer"]
 
-    session = sessions.get(user_id)
-    if not session:
-        return jsonify({"error":"Session not found"}), 404
+    session = sessions[user_id]
+    q = session["questions"][session["index"]]
 
-    current_q = session["questions"][session["current_index"]]
-    correct = user_answer.strip().lower() == current_q["answer"].strip().lower()
+    correct = ans.lower() == q["answer"].lower()
 
-    if not correct:
-        session["weak_subtopics"].setdefault(current_q["topic"], []).append(current_q["subtopic"])
+    if correct:
+        session["score"] += 1
+    else:
+        session["weak"].setdefault(q["topic"], []).append(q["subtopic"])
 
-    session["history"].append({
-        "topic": current_q["topic"],
-        "subtopic": current_q["subtopic"],
-        "correct": correct
-    })
-
-    session["current_index"] += 1
+    session["index"] += 1
 
     return jsonify({
         "correct": correct,
-        "answer": current_q["answer"]
+        "answer": q["answer"],
+        "score": session["score"]
     })
+
+@app.route("/study_plan")
+def study_plan():
+    user_id = request.args.get("user_id")
+    session_data = sessions.get(user_id)
+    if not session_data:
+        return "Session not found", 404
+
+    # Use the same 'weak' dictionary you already store in session
+    weak_subtopics = session_data.get("weak", {})
+
+    # Generate study plan (can handle empty weak_subtopics)
+    study_plan_data = generate_study_plan(weak_subtopics)
+
+    return render_template("study_plan.html", plan=study_plan_data)
 
 if __name__ == "__main__":
     app.run(debug=True)

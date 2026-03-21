@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -93,5 +93,49 @@ async function start(){
 }
 </script>
 
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>AI Learning</title>
+<style>
+body{
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+background:linear-gradient(135deg,#06b6d4,#0f172a);
+color:white;
+font-family:sans-serif;
+}
+.card{padding:30px;background:#1e293b;border-radius:15px;text-align:center;}
+input,button{width:100%;padding:10px;margin-top:10px;border-radius:10px;border:none;}
+button{background:#3b82f6;color:white;}
+</style>
+</head>
+
+<body>
+<div class="card">
+<h2>AI Learning Bot</h2>
+<input id="name" placeholder="Enter name">
+<button onclick="start()">Start</button>
+</div>
+
+<script>
+async function start(){
+const name=document.getElementById("name").value;
+localStorage.setItem("user",name);
+
+await fetch("/start",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({user_id:name})
+});
+
+window.location="/game";
+}
+</script>
 </body>
 </html>

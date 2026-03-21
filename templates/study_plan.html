@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personalized Learning Plan</title>
+<style>
+body{
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg,#1e3a8a,#0f172a);
+    color:white;
+    margin:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+.container{
+    max-width:700px;
+    margin-top:30px;
+    width:90%;
+}
+.card{
+    background: rgba(255,255,255,0.08);
+    padding:25px;
+    border-radius:25px;
+    margin-bottom:20px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    transition: transform 0.2s;
+}
+.card:hover{ transform: translateY(-5px);}
+button{
+    margin:10px 0;
+    padding:12px 20px;
+    border:none;
+    border-radius:15px;
+    background:#3b82f6;
+    cursor:pointer;
+    transition:0.3s;
+    display:block;
+    width:100%;
+    font-weight:bold;
+}
+button:hover{ background:#2563eb; transform:scale(1.05);}
+h2,h3{margin:10px 0;}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>📚 Personalized 2-Month Learning Plan</h2>
+        <div id="planContainer">
+            {% for week, lessons in plan.items() %}
+                <h3>{{ week }}</h3>
+                {% for lesson in lessons %}
+                    <button onclick="startLesson('{{ lesson }}')">Start Lesson: {{ lesson }}</button>
+                {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+function startLesson(lesson){
+    alert(`Starting lesson: ${lesson}`);
+}
+</script>
+
+</body>
+</html>
